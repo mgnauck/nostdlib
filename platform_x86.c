@@ -13,7 +13,7 @@ void *_memset(void *dst, int c, size_t len)
 	return d;
 }
 
-void *_memcpy(void *restrict dst, void *restrict src, size_t len)
+void *_memcpy(void *restrict dst, const void *restrict src, size_t len)
 {
 	void *d = dst;
 	__asm__ volatile ("rep movsb"

@@ -22,15 +22,18 @@ void      *_malloc(size_t len);
 void      _free(void *ptr);
 
 void      *_memset(void *dst, int c, size_t len);
-void      *_memcpy(void *restrict dst, void *restrict src, size_t len);
+void      *_memcpy(void *restrict dst, const void *restrict src, size_t len);
 
-size_t    strlen(const char *p);
+size_t    strlen(const char *s);
 int       strcmp(const char *s1, const char *s2);
 int       strncmp(const char *s1, const char *s2, size_t n);
 char      *strstr(const char *str, const char *sub);
 
+int       isdigit(int c);
+int       isspace(int c);
+
 // TODO
-long      strtol(const char *restrict nptr, char **restrict endptr, int base);
+int       atoi(const char *s);
 float     strtof(const char *restrict nptr, char **restrict endptr);
 
 uint32_t  fetch_and_add(uint32_t *var, uint32_t val);

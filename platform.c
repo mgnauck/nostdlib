@@ -46,16 +46,18 @@ void _free(void *ptr)
 
 void *_memset(void *dst, int c, size_t len)
 {
+	if (!len)
+		return dest;
 	unsigned char *d = dst;
 	for (; len; len--, d++)
 		*d = c;
 	return dst;
 }
 
-void *_memcpy(void *restrict dst, void *restrict src, size_t len)
+void *_memcpy(void *restrict dst, const void *restrict src, size_t len)
 {
 	unsigned char *d = dst;
-	unsigned char *s = src;
+	const unsigned char *s = src;
 	for (; len; len--, d++, s++)
 		*d = *s;
 	return dst;
@@ -63,12 +65,11 @@ void *_memcpy(void *restrict dst, void *restrict src, size_t len)
 
 #endif
 
-size_t strlen(const char *p)
+size_t strlen(const char *s)
 {
-	size_t len = 0;
-	while (*p++)
-		len++;
-	return len;
+	const char *o = s;
+	for (; *s; s++);
+	return s - o;
 }
 
 int strcmp(const char *s1, const char *s2)
@@ -102,4 +103,34 @@ char *strstr(const char *str, const char *sub)
 			p = (char *)sub;
 	}
 	return NULL;
+}
+
+int isdigit(int c)
+{
+	return (unsigned int)c - '0' < 10;
+}
+
+int isspace(int c)
+{
+	return c == ' ' || (unsigned int)c - '\t' < 5;
+}
+
+int atoi(const char *s)
+{
+	int neg = 0;
+	int n = 0;
+
+	while (isspace(*s))
+		s++;
+
+	switch (*s) {
+		case '-': neg = 1;
+		case '+': s++;
+	}
+
+	// Compute as negative number avoiding overflow at INT_MIN
+	while (isdigit(*s))
+		n = 10 * n - (*s++ - '0');
+
+	return neg ? n : -n;
 }

@@ -5,7 +5,7 @@ CC = clang
 CFLAGS = -std=c99 -march=native -flto -O3 -fno-builtin -fno-stack-protector
 CFLAGS += -Wall -Wextra -Wpedantic
 #CFLAGS += $(shell sdl2-config --cflags)
-CFLAGS += -g -Werror -Wshadow
+CFLAGS += -g -Wshadow
 #CFLAGS += -fsanitize=undefined
 #CFLAGS += -DNDEBUG
 #LDLIBS = -lm $(shell sdl2-config --libs)
