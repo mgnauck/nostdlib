@@ -29,8 +29,9 @@ int       strcmp(const char *s1, const char *s2);
 int       strncmp(const char *s1, const char *s2, size_t n);
 char      *strstr(const char *str, const char *sub);
 
-int       atoi(const char *s);
-float     atof(const char *s); // TODO
+// TODO
+long      strtol(const char *restrict nptr, char **restrict endptr, int base);
+float     strtof(const char *restrict nptr, char **restrict endptr);
 
 uint32_t  fetch_and_add(uint32_t *var, uint32_t val);
 
