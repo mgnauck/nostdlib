@@ -1,50 +1,50 @@
-#include <stddef.h>
-#include <stdint.h>
 #include <sys/mman.h>
 
 #include "platform.h"
 
-extern uint64_t syscall(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t,
-  uint64_t, uint64_t);
+extern long long syscall(long long call, long long a, long long b, long long c,
+                         long long d, long long e, long long f);
 
-void _exit(int code)
+void exit(int code)
 {
 	syscall(60, code, 0, 0, 0, 0, 0);
 }
 
-void *_mmap(void *ptr, size_t len, int prot, int flags, int fd, off_t ofs)
+void *mmap(void *ptr, size_t len, int prot, int flags, int fd, off_t ofs)
 {
-	return (void *)syscall(9, (uint64_t)ptr, len, prot, flags, fd, ofs);
+	return (void *)syscall(9, (long long)ptr, len, prot, flags, fd, ofs);
 }
 
-int _unmap(void *ptr, size_t len)
+int unmap(void *ptr, size_t len)
 {
-	return syscall(11, (long)ptr, len, 0, 0, 0, 0);
+	return syscall(11, (long long)ptr, len, 0, 0, 0, 0);
 }
 
-void *_malloc(size_t len)
+void *malloc(size_t len)
 {
 	len += sizeof(len);
-	void *ptr = mmap(NULL, len, PROT_READ | PROT_WRITE,
+	void *ptr = mmap(0, len, PROT_READ | PROT_WRITE,
 	  MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-	if ((ptrdiff_t)ptr < 0)
-		_exit(1);
-	_memcpy(ptr, &len, sizeof(len));
-	return (void *)((ptrdiff_t)ptr + (ptrdiff_t)sizeof(len));
+	if ((long long)ptr < 0)
+		exit(1);
+	memcpy(ptr, &len, sizeof(len));
+	return (void *)((unsigned long long)ptr +
+	  (unsigned long long)sizeof(len));
 }
 
-void _free(void *ptr)
+void free(void *ptr)
 {
 	size_t len;
-	ptr = (void *)((ptrdiff_t)ptr - (ptrdiff_t)sizeof(len));
-	_memcpy(&len, ptr, sizeof(len));
+	ptr = (void *)((unsigned long long)ptr -
+	  (unsigned long long)sizeof(len));
+	memcpy(&len, ptr, sizeof(len));
 	if (munmap(ptr, len) < 0)
-		_exit(1);
+		exit(1);
 }
 
 #ifndef __x86_64__
 
-void *_memset(void *dst, int c, size_t len)
+void *memset(void *dst, int c, size_t len)
 {
 	if (!len)
 		return dest;
@@ -54,7 +54,7 @@ void *_memset(void *dst, int c, size_t len)
 	return dst;
 }
 
-void *_memcpy(void *restrict dst, const void *restrict src, size_t len)
+void *memcpy(void *restrict dst, const void *restrict src, size_t len)
 {
 	unsigned char *d = dst;
 	const unsigned char *s = src;
@@ -99,10 +99,10 @@ char *strstr(const char *str, const char *sub)
 			p++;
 		if (!*p)
 			return (char *)str - l;
-		if ((ptrdiff_t)l == p - sub)
+		if ((long long)l == p - sub)
 			p = (char *)sub;
 	}
-	return NULL;
+	return 0;
 }
 
 int isdigit(int c)
