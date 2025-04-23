@@ -1,31 +1,62 @@
 #include <stdbool.h>
-#include <sys/mman.h>
 
 #include "platform.h"
+
+#define NULL ((void *)0) // TODO Make available in header?
+
+#define STDOUT_FILENO  1
+
+#define PROT_READ      0x1
+#define PROT_WRITE     0x2
+
+#define MAP_PRIVATE    0x002
+#define MAP_ANONYMOUS  0x020
+#define MAP_GROWSDOWN  0x100
+
+#if defined(__x86_64__)
+
+#define SYS_WRITE     1
+#define SYS_MMAP      9
+#define SYS_UNMAP    11
+#define SYS_EXIT     60
+
+#elif defined(__aarch64__)
+
+#define SYS_WRITE    64
+#define SYS_MMAP    222 
+#define SYS_UNMAP   215
+#define SYS_EXIT     93
+
+#else
+
+#error PLATFORM NOT SUPPORTED
+
+#endif
 
 extern long long syscall(long long call, long long a, long long b, long long c,
                          long long d, long long e, long long f);
 
 void exit(int code)
 {
-	syscall(60, code, 0, 0, 0, 0, 0);
+	syscall(SYS_EXIT, code, 0, 0, 0, 0, 0);
 }
 
-void *mmap(void *ptr, size_t len, int prot, int flags, int fd, off_t ofs)
+void *mmap(void *ptr, unsigned long long len, int prot, int flags, int fd,
+           unsigned long long ofs)
 {
-	return (void *)syscall(9, (long long)ptr, len, prot, flags, fd, ofs);
+	return (void *)syscall(SYS_MMAP, (long long)ptr, len, prot, flags, fd, ofs);
 }
 
-int unmap(void *ptr, size_t len)
+int munmap(void *ptr, unsigned long long len)
 {
-	return syscall(11, (long long)ptr, len, 0, 0, 0, 0);
+	return syscall(SYS_UNMAP, (long long)ptr, len, 0, 0, 0, 0);
 }
 
-void *malloc(size_t len)
+void *malloc(unsigned long long len)
 {
 	len += sizeof(len);
-	void *ptr = mmap(0, len, PROT_READ | PROT_WRITE,
-	  MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	void *ptr = mmap(NULL, len, PROT_READ | PROT_WRITE,
+	  MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if ((long long)ptr < 0)
 		exit(1);
 	memcpy(ptr, &len, sizeof(len));
@@ -35,7 +66,7 @@ void *malloc(size_t len)
 
 void free(void *ptr)
 {
-	size_t len;
+	unsigned long long len;
 	ptr = (void *)((unsigned long long)ptr -
 	  (unsigned long long)sizeof(len));
 	memcpy(&len, ptr, sizeof(len));
@@ -45,7 +76,7 @@ void free(void *ptr)
 
 #ifndef __x86_64__
 
-void *memset(void *dst, int c, size_t len)
+void *memset(void *dst, int c, unsigned long long len)
 {
 	if (!len)
 		return dest;
@@ -55,7 +86,8 @@ void *memset(void *dst, int c, size_t len)
 	return dst;
 }
 
-void *memcpy(void *restrict dst, const void *restrict src, size_t len)
+void *memcpy(void *restrict dst, const void *restrict src,
+             unsigned long long len)
 {
 	unsigned char *d = dst;
 	const unsigned char *s = src;
@@ -66,7 +98,7 @@ void *memcpy(void *restrict dst, const void *restrict src, size_t len)
 
 #endif
 
-size_t strlen(const char *s)
+unsigned long long strlen(const char *s)
 {
 	const char *o = s;
 	for (; *s; s++);
@@ -81,9 +113,9 @@ int strcmp(const char *s1, const char *s2)
 	return (*(const unsigned char *)s1 - *(const unsigned char *)(s2 - 1));
 }
 
-int strncmp(const char *s1, const char *s2, size_t n)
+int strncmp(const char *s1, const char *s2, unsigned long long n)
 {
-	for (size_t i = 0; i < n; i++) {
+	for (unsigned long long i = 0; i < n; i++) {
 		int d = (unsigned char)s1[i] - (unsigned char)s2[i];
 		if (d != 0 || s1[i] == '\0')
 			return d;
@@ -93,7 +125,7 @@ int strncmp(const char *s1, const char *s2, size_t n)
 
 char *strstr(const char *str, const char *sub)
 {
-	size_t l = strlen(sub);
+	unsigned long long l = strlen(sub);
 	char *p = (char *)sub;
 	while (*str && *p) {
 		if (*str++ == *p)
@@ -103,7 +135,17 @@ char *strstr(const char *str, const char *sub)
 		if ((long long)l == p - sub)
 			p = (char *)sub;
 	}
-	return 0;
+	return NULL;
+}
+
+long long write(int fd, const void *buf, unsigned long long cnt)
+{
+	return syscall(SYS_WRITE, fd, (long long)buf, cnt, 0, 0, 0);
+}
+
+void _putchar(char c)
+{
+	write(1, &c, 1);
 }
 
 int isdigit(int c)
@@ -135,6 +177,8 @@ int atoi(const char *s)
 
 	return neg ? n : -n;
 }
+
+#ifdef INCLUDE_STRTOF
 
 // strtof taken LibCL. Does not handle nan or inf.
 // https://github.com/ochafik/LibCL/blob/master/src/main/resources/LibCL/strtof.c
@@ -364,5 +408,7 @@ done:
 
 float atof(const char *str)
 {
-	return strtof(str, 0);
+	return strtof(str, NULL);
 }
+
+#endif // INCLUDE_STRTOF

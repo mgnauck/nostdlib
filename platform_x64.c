@@ -19,7 +19,7 @@ long long syscall(long long call, long long a, long long b, long long c,
 	return res;
 }
 
-void *memset(void *dst, int c, size_t len)
+void *memset(void *dst, int c, unsigned long long len)
 {
 	void *d = dst;
 	__asm__ volatile (
@@ -31,7 +31,8 @@ void *memset(void *dst, int c, size_t len)
 	return d;
 }
 
-void *memcpy(void *restrict dst, const void *restrict src, size_t len)
+void *memcpy(void *restrict dst, const void *restrict src,
+             unsigned long long len)
 {
 	void *d = dst;
 	__asm__ volatile (
