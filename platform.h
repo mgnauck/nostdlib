@@ -29,7 +29,8 @@ int       isdigit(int c);
 int       isspace(int c);
 
 int       atoi(const char *s);
-float     strtof(const char *restrict nptr, char **restrict endptr); // TODO
+float     strtof(const char *restrict s, char **restrict endptr);
+float     atof(const char *s);
 
 int       fetch_and_add(int *var, int val);
 
