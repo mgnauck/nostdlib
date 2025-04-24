@@ -1,5 +1,5 @@
 .POSIX:
-OBJ = main.o platform.o platform_x64.o platform_AArch64.o printf.o
+OBJ = main.o platform.o platform_x86-64.o platform_AArch64.o printf.o
 OUT = a.out
 CC = clang
 CFLAGS = -std=c99 -march=native -flto -O3 -Wall -Wextra -Wpedantic -Wshadow

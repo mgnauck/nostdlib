@@ -1,4 +1,6 @@
+#ifndef INCLUDE_STRTOF
 #include <stdbool.h>
+#endif
 
 #include "platform.h"
 
@@ -12,6 +14,16 @@
 #define MAP_PRIVATE    0x002
 #define MAP_ANONYMOUS  0x020
 #define MAP_GROWSDOWN  0x100
+
+/*
+Calling conventions:
+
+arch	call#   ret	arg0	arg1	arg2	arg3	arg4	arg5   call
+arm64	x8	x0	x0	x1	x2	x3	x4	x5     svc #0
+x86_64	rax	rax	rdi	rsi	rdx	r10	r8	r9     syscall
+*/
+
+#if defined(__linux__)
 
 #if defined(__x86_64__)
 
@@ -33,6 +45,33 @@
 
 #endif
 
+#elif define(__APPLE__)
+
+// TODO Not tested yet, no macOS available
+
+#if defined(__x86_64__)
+
+// SYSCALL_CLASS_UNIX << SYSCALL_CLASS_SHIFT, which is 2 << 24 = 0x2000000
+#define SYS_WRITE   (0x2000000 + 4)
+#define SYS_MMAP    (0x2000000 + 197)
+#define SYS_UNMAP   (0x2000000 + 73)
+#define SYS_EXIT    (0x2000000 + 1)
+
+#elif defined(__aarch64__)
+
+#define SYS_WRITE   4
+#define SYS_MMAP    197
+#define SYS_UNMAP   73
+#define SYS_EXIT    1
+
+#else
+
+#error PLATFORM NOT SUPPORTED
+
+#endif
+
+#endif
+
 extern long long syscall(long long call, long long a, long long b, long long c,
                          long long d, long long e, long long f);
 
@@ -50,6 +89,11 @@ void *mmap(void *ptr, unsigned long long len, int prot, int flags, int fd,
 int munmap(void *ptr, unsigned long long len)
 {
 	return syscall(SYS_UNMAP, (long long)ptr, len, 0, 0, 0, 0);
+}
+
+long long write(int fd, const void *buf, unsigned long long cnt)
+{
+	return syscall(SYS_WRITE, fd, (long long)buf, cnt, 0, 0, 0);
 }
 
 void *malloc(unsigned long long len)
@@ -74,12 +118,10 @@ void free(void *ptr)
 		exit(1);
 }
 
-#ifndef __x86_64__
-
 void *memset(void *dst, int c, unsigned long long len)
 {
 	if (!len)
-		return dest;
+		return dst;
 	unsigned char *d = dst;
 	for (; len; len--, d++)
 		*d = c;
@@ -89,14 +131,14 @@ void *memset(void *dst, int c, unsigned long long len)
 void *memcpy(void *restrict dst, const void *restrict src,
              unsigned long long len)
 {
+	if (!len)
+		return dst;
 	unsigned char *d = dst;
 	const unsigned char *s = src;
 	for (; len; len--, d++, s++)
 		*d = *s;
 	return dst;
 }
-
-#endif
 
 unsigned long long strlen(const char *s)
 {
@@ -136,11 +178,6 @@ char *strstr(const char *str, const char *sub)
 			p = (char *)sub;
 	}
 	return NULL;
-}
-
-long long write(int fd, const void *buf, unsigned long long cnt)
-{
-	return syscall(SYS_WRITE, fd, (long long)buf, cnt, 0, 0, 0);
 }
 
 void _putchar(char c)

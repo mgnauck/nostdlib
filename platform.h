@@ -14,6 +14,8 @@ void                *mmap(void *ptr, unsigned long long len, int prot,
                           int flags, int fd, unsigned long long ofs);
 int                 unmap(void *ptr, unsigned long long len);
 
+long long           write(int fd, const void *buf, unsigned long long cnt);
+
 void                *malloc(unsigned long long len);
 void                free(void *ptr);
 
@@ -27,7 +29,6 @@ int                 strncmp(const char *s1, const char *s2,
                             unsigned long long n);
 char                *strstr(const char *str, const char *sub);
 
-long long           write(int fd, const void *buf, unsigned long long cnt);
 void                _putchar(char character); // For external custom printf
 
 int                 isdigit(int c);
