@@ -21,10 +21,4 @@ long long syscall(long long nr, long long a, long long b, long long c,
 	return x0;
 }
 
-int fetch_and_add(int *var, int val)
-{
-	// TODO
-	return val;
-}
-
 #endif

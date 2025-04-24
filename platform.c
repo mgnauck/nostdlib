@@ -449,3 +449,8 @@ float atof(const char *str)
 }
 
 #endif // INCLUDE_STRTOF
+
+int fetch_and_add(int *var, int val)
+{
+	return __atomic_fetch_add(var, val, __ATOMIC_SEQ_CST);
+}
