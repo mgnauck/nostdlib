@@ -1,5 +1,15 @@
 #include "platform.h"
 
+#define SYS_CLONE      220
+
+#define CLONE_VM       0x00000100 // Both processes share memory space
+#define CLONE_FS       0x00000200 // Share filesystem information
+#define CLONE_FILES    0x00000400 // Share file descriptor table
+#define CLONE_SIGHAND  0x00000800 // Shared table of signal handlers
+#define CLONE_PARENT   0x00008000 // Same parent as calling process
+#define CLONE_THREAD   0x00010000 // Share threadgroup of calling process
+#define CLONE_IO       0x80000000 // Share I/O context
+
 #ifdef __aarch64__
 
 long long syscall(long long nr, long long a, long long b, long long c,

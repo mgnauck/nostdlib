@@ -14,6 +14,7 @@
 #define MAP_PRIVATE    0x002
 #define MAP_ANONYMOUS  0x020
 #define MAP_GROWSDOWN  0x100
+#define MAP_STACK      0x200
 
 /*
 Calling conventions:
@@ -45,9 +46,7 @@ x86_64	rax	rax	rdi	rsi	rdx	r10	r8	r9     syscall
 
 #endif
 
-#elif define(__APPLE__)
-
-// TODO Not tested yet, no macOS available
+#elif define(__APPLE__) // TODO Not tested yet, no macOS available
 
 #if defined(__x86_64__)
 
@@ -72,6 +71,7 @@ x86_64	rax	rax	rdi	rsi	rdx	r10	r8	r9     syscall
 
 #endif
 
+// TODO Create versions of syscall for diff arg cnt to avoid zeroing registers?
 extern long long syscall(long long call, long long a, long long b, long long c,
                          long long d, long long e, long long f);
 
@@ -83,7 +83,8 @@ void exit(int code)
 void *mmap(void *ptr, unsigned long long len, int prot, int flags, int fd,
            unsigned long long ofs)
 {
-	return (void *)syscall(SYS_MMAP, (long long)ptr, len, prot, flags, fd, ofs);
+	return (void *)syscall(SYS_MMAP, (long long)ptr, len, prot,
+	                       flags, fd, ofs);
 }
 
 int munmap(void *ptr, unsigned long long len)
@@ -99,12 +100,12 @@ long long write(int fd, const void *buf, unsigned long long cnt)
 void *malloc(unsigned long long len)
 {
 	len += sizeof(len);
-	void *ptr = mmap(NULL, len, PROT_READ | PROT_WRITE,
+	void *p = mmap(NULL, len, PROT_READ | PROT_WRITE,
 	  MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	if ((long long)ptr < 0)
+	if ((long long)p < 0)
 		exit(1);
-	memcpy(ptr, &len, sizeof(len));
-	return (void *)((unsigned long long)ptr +
+	memcpy(p, &len, sizeof(len));
+	return (void *)((unsigned long long)p +
 	  (unsigned long long)sizeof(len));
 }
 
@@ -138,6 +139,23 @@ void *memcpy(void *restrict dst, const void *restrict src,
 	for (; len; len--, d++, s++)
 		*d = *s;
 	return dst;
+}
+
+void *create_stack(unsigned long stacksz)
+{
+	void *p = mmap(NULL, stacksz, PROT_READ | PROT_WRITE, MAP_ANONYMOUS |
+	               MAP_PRIVATE | MAP_GROWSDOWN | MAP_STACK, -1, 0);
+	if ((long long)p < 0)
+		exit(1);
+
+	// Top of stack is aligned to 16 byte boundary
+	void **pp = (void **)(((unsigned long long)p + stacksz) & ~15ull);
+
+	// Push original addr to the top, in case we ever want to unmap
+	pp[-1] = p;
+
+	// Return addr of next stack pos to implicitly preserve original addr
+	return &pp[-2];
 }
 
 unsigned long long strlen(const char *s)

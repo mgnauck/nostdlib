@@ -12,7 +12,7 @@ void                exit(int code);
 
 void                *mmap(void *ptr, unsigned long long len, int prot,
                           int flags, int fd, unsigned long long ofs);
-int                 unmap(void *ptr, unsigned long long len);
+int                 munmap(void *ptr, unsigned long long len);
 
 long long           write(int fd, const void *buf, unsigned long long cnt);
 
@@ -22,6 +22,9 @@ void                free(void *ptr);
 void                *memset(void *dst, int c, unsigned long long len);
 void                *memcpy(void *restrict dst, const void *restrict src,
                             unsigned long long len);
+
+void                *create_stack(unsigned long stacksz);
+long long           create_thread(void (*fn)(void *), void *param, void *stack);
 
 unsigned long long  strlen(const char *s);
 int                 strcmp(const char *s1, const char *s2);
