@@ -55,7 +55,7 @@ x86_64	rax	rax	rdi	rsi	rdx	r10	r8	r9     syscall
 #if defined(__x86_64__)
 
 // SYSCALL_CLASS_UNIX << SYSCALL_CLASS_SHIFT, which is 2 << 24 = 0x2000000
-#define SYS_OPENAT  (0x2000000 + 1337) // TODO
+#define SYS_OPENAT  (0x2000000 + 463)
 #define SYS_WRITE   (0x2000000 + 4)
 #define SYS_MMAP    (0x2000000 + 197)
 #define SYS_UNMAP   (0x2000000 + 73)
@@ -63,7 +63,7 @@ x86_64	rax	rax	rdi	rsi	rdx	r10	r8	r9     syscall
 
 #elif defined(__aarch64__)
 
-#define SYS_OPENAT  1337 // TODO 
+#define SYS_OPENAT  463
 #define SYS_WRITE   4
 #define SYS_MMAP    197
 #define SYS_UNMAP   73
