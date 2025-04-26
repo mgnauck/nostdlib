@@ -31,4 +31,32 @@ long long syscall(long long nr, long long a, long long b, long long c,
 	return x0;
 }
 
+long long create_thread(void (*fn)(void *), void *param, void *stack)
+{
+	void **top = (void **)stack;
+	top[-1] = (void *)fn; // Push thread entry function first
+	top[-2] = param; // Push thread entry function parameter location next
+
+	unsigned long long flags = CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
+	  CLONE_PARENT | CLONE_THREAD | CLONE_IO | CLONE_VM;
+
+	register unsigned long long x8 __asm("x8") = SYS_CLONE; // Nr + ret val
+	register unsigned long long x0 __asm("x0") = flags;
+	register unsigned long long x1 __asm("x1") =
+	  (unsigned long long)&top[-2];
+
+	__asm volatile (
+		"svc #0                 \n\t" // Child process returns with 0
+		"cbnz x0, 0f            \n\t" // Parent branches
+		"ldp x0, x1, [sp], #16  \n\t" // Entry fn to x1, param to x0
+		"ret x1                 \n\t" // "Call" entry func
+		"0:                     \n\t" // Parent exits here
+		: "=r"(x8)
+		: "r"(x8), "r"(x0), "r"(x1)
+		: "memory", "cc"
+	);
+
+	return x8;
+}
+
 #endif

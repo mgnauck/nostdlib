@@ -43,7 +43,7 @@ long long create_thread(void (*fn)(void *), void *param, void *stack)
 		"andl %%eax, %%eax  \n\t" // Child sets zero flag
 		"jnz 0f             \n\t" // Parent jumps
 		"popq %%rdi         \n\t" // Entry func arg (2nd on stack)
-		"ret                \n\t" // Call entry func (1st on stack)
+		"ret                \n\t" // "Call" entry func (1st on stack)
 		"0:                 \n\t" // Parent exits here
 		: "=a"(res)
 		: "0"(SYS_CLONE), "D"(flags), "S"(&top[-2])
