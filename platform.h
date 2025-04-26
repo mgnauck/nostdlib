@@ -24,6 +24,8 @@ void                *memcpy(void *restrict dst, const void *restrict src,
                             unsigned long long len);
 
 void                *create_stack(unsigned long stacksz);
+void                release_stack(void *stack, unsigned long stacksz);
+
 long long           create_thread(void (*fn)(void *), void *param, void *stack);
 
 unsigned long long  strlen(const char *s);

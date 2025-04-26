@@ -158,6 +158,11 @@ void *create_stack(unsigned long stacksz)
 	return &pp[-2];
 }
 
+void release_stack(void *stack, unsigned long stacksz)
+{
+	munmap(stack, stacksz);
+}
+
 unsigned long long strlen(const char *s)
 {
 	const char *o = s;

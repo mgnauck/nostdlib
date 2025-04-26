@@ -39,9 +39,9 @@ long long create_thread(void (*fn)(void *), void *param, void *stack)
 
 	long long res = 0;
 	__asm volatile (
-		"syscall            \n\t"
-		"andl %%eax, %%eax  \n\t" // Child process returns with 0
-		"jnz 0f             \n\t"
+		"syscall            \n\t" // Child process returns with 0
+		"andl %%eax, %%eax  \n\t" // Child sets zero flag
+		"jnz 0f             \n\t" // Parent jumps
 		"popq %%rdi         \n\t" // Entry func arg (2nd on stack)
 		"ret                \n\t" // Call entry func (1st on stack)
 		"0:                 \n\t" // Parent exits here
