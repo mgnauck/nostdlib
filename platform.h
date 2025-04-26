@@ -14,7 +14,8 @@ void                *mmap(void *ptr, unsigned long long len, int prot,
                           int flags, int fd, unsigned long long ofs);
 int                 munmap(void *ptr, unsigned long long len);
 
-long long           write(int fd, const void *buf, unsigned long long cnt);
+long                openat(int dirfd, const char *pathname, int flags); 
+long                write(int fd, const void *buf, unsigned long long cnt);
 
 void                *malloc(unsigned long long len);
 void                free(void *ptr);

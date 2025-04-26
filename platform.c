@@ -8,6 +8,8 @@
 
 #define STDOUT_FILENO  1
 
+// TODO define relevant openat flags
+
 #define PROT_READ      0x1
 #define PROT_WRITE     0x2
 
@@ -28,6 +30,7 @@ x86_64	rax	rax	rdi	rsi	rdx	r10	r8	r9     syscall
 
 #if defined(__x86_64__)
 
+#define SYS_OPENAT  257
 #define SYS_WRITE     1
 #define SYS_MMAP      9
 #define SYS_UNMAP    11
@@ -35,6 +38,7 @@ x86_64	rax	rax	rdi	rsi	rdx	r10	r8	r9     syscall
 
 #elif defined(__aarch64__)
 
+#define SYS_OPENAT   56
 #define SYS_WRITE    64
 #define SYS_MMAP    222 
 #define SYS_UNMAP   215
@@ -51,6 +55,7 @@ x86_64	rax	rax	rdi	rsi	rdx	r10	r8	r9     syscall
 #if defined(__x86_64__)
 
 // SYSCALL_CLASS_UNIX << SYSCALL_CLASS_SHIFT, which is 2 << 24 = 0x2000000
+#define SYS_OPENAT  (0x2000000 + 1337) // TODO
 #define SYS_WRITE   (0x2000000 + 4)
 #define SYS_MMAP    (0x2000000 + 197)
 #define SYS_UNMAP   (0x2000000 + 73)
@@ -58,6 +63,7 @@ x86_64	rax	rax	rdi	rsi	rdx	r10	r8	r9     syscall
 
 #elif defined(__aarch64__)
 
+#define SYS_OPENAT  1337 // TODO 
 #define SYS_WRITE   4
 #define SYS_MMAP    197
 #define SYS_UNMAP   73
@@ -92,7 +98,12 @@ int munmap(void *ptr, unsigned long long len)
 	return syscall(SYS_UNMAP, (long long)ptr, len, 0, 0, 0, 0);
 }
 
-long long write(int fd, const void *buf, unsigned long long cnt)
+long openat(int dirfd, const char *pathname, int flags) 
+{
+	return syscall(SYS_OPENAT, dirfd, (long long)pathname, flags, 0, 0, 0);
+}
+
+long write(int fd, const void *buf, unsigned long long cnt)
 {
 	return syscall(SYS_WRITE, fd, (long long)buf, cnt, 0, 0, 0);
 }
