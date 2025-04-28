@@ -4,6 +4,7 @@ OUT = a.out
 CC = clang
 CFLAGS = -std=c99 -march=native -flto -O3 -Wall -Wextra -Wpedantic -Wshadow
 CFLAGS += -fno-builtin -fno-stack-protector
+#CFLAGS += -fdata-sections -Wa,--noexecstack -static -fdelete-null-pointer-checks
 #CFLAGS += $(shell sdl2-config --cflags)
 CFLAGS += -g
 #CFLAGS += -fsanitize=undefined
@@ -14,6 +15,7 @@ CFLAGS += -g
 LDFLAGS = -fuse-ld=lld
 #LDFLAGS += -s
 LDFLAGS += -nostdlib
+# TODO strip -R .comment a.out
 
 all: $(OUT)
 

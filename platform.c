@@ -6,18 +6,6 @@
 
 #define NULL ((void *)0) // TODO Make available in header?
 
-#define STDOUT_FILENO  1
-
-// TODO define relevant openat flags
-
-#define PROT_READ      0x1
-#define PROT_WRITE     0x2
-
-#define MAP_PRIVATE    0x002
-#define MAP_ANONYMOUS  0x020
-#define MAP_GROWSDOWN  0x100
-#define MAP_STACK      0x200
-
 /*
 Calling conventions:
 
@@ -30,19 +18,23 @@ x86_64	rax	rax	rdi	rsi	rdx	r10	r8	r9     syscall
 
 #if defined(__x86_64__)
 
-#define SYS_OPENAT  257
-#define SYS_WRITE     1
-#define SYS_MMAP      9
-#define SYS_UNMAP    11
-#define SYS_EXIT     60
+#define SYS_OPENAT   257
+#define SYS_FSTATAT  262
+#define SYS_CLOSE      3
+#define SYS_WRITE      1
+#define SYS_MMAP       9
+#define SYS_UNMAP     11
+#define SYS_EXIT      60
 
 #elif defined(__aarch64__)
 
-#define SYS_OPENAT   56
-#define SYS_WRITE    64
-#define SYS_MMAP    222 
-#define SYS_UNMAP   215
-#define SYS_EXIT     93
+#define SYS_OPENAT    56
+#define SYS_FSTATAT   79 
+#define SYS_CLOSE     57 
+#define SYS_WRITE     64
+#define SYS_MMAP     222 
+#define SYS_UNMAP    215
+#define SYS_EXIT      93
 
 #else
 
@@ -56,6 +48,8 @@ x86_64	rax	rax	rdi	rsi	rdx	r10	r8	r9     syscall
 
 // SYSCALL_CLASS_UNIX << SYSCALL_CLASS_SHIFT, which is 2 << 24 = 0x2000000
 #define SYS_OPENAT  (0x2000000 + 463)
+#define SYS_FSTATAT (0x2000000 + XX)
+#define SYS_CLOSE   (0x2000000 + XX)
 #define SYS_WRITE   (0x2000000 + 4)
 #define SYS_MMAP    (0x2000000 + 197)
 #define SYS_UNMAP   (0x2000000 + 73)
@@ -63,11 +57,13 @@ x86_64	rax	rax	rdi	rsi	rdx	r10	r8	r9     syscall
 
 #elif defined(__aarch64__)
 
-#define SYS_OPENAT  463
-#define SYS_WRITE   4
-#define SYS_MMAP    197
-#define SYS_UNMAP   73
-#define SYS_EXIT    1
+#define SYS_OPENAT   463
+#define SYS_FSTATAT  XX
+#define SYS_CLOSE    XX
+#define SYS_WRITE    4
+#define SYS_MMAP     197
+#define SYS_UNMAP    73
+#define SYS_EXIT     1
 
 #else
 
@@ -86,6 +82,30 @@ void exit(int code)
 	syscall(SYS_EXIT, code, 0, 0, 0, 0, 0);
 }
 
+#ifdef INCLUDE_FILEIO
+long openat(int dirfd, const char *pathname, int flags) 
+{
+	return syscall(SYS_OPENAT, dirfd, (long long)pathname, flags, 0, 0, 0);
+}
+
+int fstatat(int dirfd, const char *pathname, struct stat *restrict statbuf,
+            int flags)
+{
+	return syscall(SYS_FSTATAT, dirfd, (long long)pathname,
+	  (long long)statbuf, flags, 0, 0);
+}
+            
+int close(int fd)
+{
+	return syscall(SYS_CLOSE, fd, 0, 0, 0, 0, 0);
+}
+#endif
+
+long write(int fd, const void *buf, unsigned long long cnt)
+{
+	return syscall(SYS_WRITE, fd, (long long)buf, cnt, 0, 0, 0);
+}
+
 void *mmap(void *ptr, unsigned long long len, int prot, int flags, int fd,
            unsigned long long ofs)
 {
@@ -96,16 +116,6 @@ void *mmap(void *ptr, unsigned long long len, int prot, int flags, int fd,
 int munmap(void *ptr, unsigned long long len)
 {
 	return syscall(SYS_UNMAP, (long long)ptr, len, 0, 0, 0, 0);
-}
-
-long openat(int dirfd, const char *pathname, int flags) 
-{
-	return syscall(SYS_OPENAT, dirfd, (long long)pathname, flags, 0, 0, 0);
-}
-
-long write(int fd, const void *buf, unsigned long long cnt)
-{
-	return syscall(SYS_WRITE, fd, (long long)buf, cnt, 0, 0, 0);
 }
 
 void *malloc(unsigned long long len)
@@ -152,6 +162,7 @@ void *memcpy(void *restrict dst, const void *restrict src,
 	return dst;
 }
 
+#ifdef INCLUDE_THREADING
 void *create_stack(unsigned long stacksz)
 {
 	void *p = mmap(NULL, stacksz, PROT_READ | PROT_WRITE, MAP_ANONYMOUS |
@@ -173,6 +184,7 @@ void release_stack(void *stack, unsigned long stacksz)
 {
 	munmap(stack, stacksz);
 }
+#endif
 
 unsigned long long strlen(const char *s)
 {

@@ -1,21 +1,76 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
+#define INCLUDE_FILEIO
+#define INCLUDE_THREADING
 #define INCLUDE_STRTOF
+
+#define STDIN_FILENO   0
+#define STDOUT_FILENO  1
+#define STDERR_FILENO  2
+
+// THESE MIGHT BE DIFFERENT 
+
+// fcntl.h
+#define O_RDONLY	00000000
+#define O_WRONLY	00000001
+#define O_RDWR		00000002
+#define O_CREAT		00000100
+#define O_APPEND        00002000
+#define AT_FDCWD        -100
+
+// mman.h
+#define PROT_READ       0x1
+#define PROT_WRITE      0x2
+#define MAP_PRIVATE     0x002
+#define MAP_ANONYMOUS   0x020
+#define MAP_GROWSDOWN   0x100
+#define MAP_STACK       0x200
 
 #define min(a, b)  ((a) < (b) ? (a) : (b))
 #define max(a, b)  ((a) > (b) ? (a) : (b))
 
 #define arrsz(a)  (sizeof(a) / sizeof(*(a)))
 
+struct timespec
+{
+	unsigned long long  sec;
+	unsigned long long  nsec;
+};
+
+struct stat
+{
+	unsigned long long  dev;
+	unsigned long long  ino;
+	unsigned long long  nlink;
+	unsigned int        mode;
+	unsigned int        uid;
+	unsigned int        gid;
+	unsigned int        __pad0;
+	unsigned long long  rdev;
+	unsigned long long  size;
+	unsigned long long  blksize;
+	unsigned long long  blocks;
+	struct timespec     atim;
+	struct timespec     mtim;
+	struct timespec     ctim;
+	long long           __unused[3];
+};
+
 void                exit(int code);
+
+#ifdef INCLUDE_FILEIO
+long                openat(int dirfd, const char *pathname, int flags); 
+int                 fstatat(int dirfd, const char *pathname,
+                            struct stat *restrict statbuf, int flags);
+int                 close(int fd);
+#endif
+
+long                write(int fd, const void *buf, unsigned long long cnt);
 
 void                *mmap(void *ptr, unsigned long long len, int prot,
                           int flags, int fd, unsigned long long ofs);
 int                 munmap(void *ptr, unsigned long long len);
-
-long                openat(int dirfd, const char *pathname, int flags); 
-long                write(int fd, const void *buf, unsigned long long cnt);
 
 void                *malloc(unsigned long long len);
 void                free(void *ptr);
@@ -24,10 +79,12 @@ void                *memset(void *dst, int c, unsigned long long len);
 void                *memcpy(void *restrict dst, const void *restrict src,
                             unsigned long long len);
 
+#ifdef INCLUDE_THREADING
 void                *create_stack(unsigned long stacksz);
 void                release_stack(void *stack, unsigned long stacksz);
 
 long long           create_thread(void (*fn)(void *), void *param, void *stack);
+#endif
 
 unsigned long long  strlen(const char *s);
 int                 strcmp(const char *s1, const char *s2);
