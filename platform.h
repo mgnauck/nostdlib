@@ -44,20 +44,20 @@ struct timespec
 
 struct stat
 {
-	unsigned long long  dev;
-	unsigned long long  ino;
-	unsigned long long  nlink;
-	unsigned int        mode;
-	unsigned int        uid;
-	unsigned int        gid;
+	unsigned long long  st_dev;
+	unsigned long long  st_ino;
+	unsigned long long  st_nlink;
+	unsigned int        st_mode;
+	unsigned int        st_uid;
+	unsigned int        st_gid;
 	unsigned int        __pad0;
-	unsigned long long  rdev;
-	unsigned long long  size;
-	unsigned long long  blksize;
-	unsigned long long  blocks;
-	struct timespec     atim;
-	struct timespec     mtim;
-	struct timespec     ctim;
+	unsigned long long  st_rdev;
+	unsigned long long  st_size;
+	unsigned long long  st_blksize;
+	unsigned long long  st_blocks;
+	struct timespec     st_atim;
+	struct timespec     st_mtim;
+	struct timespec     st_ctim;
 	long long           __unused[3];
 };
 
