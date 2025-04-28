@@ -5,6 +5,10 @@
 #define INCLUDE_THREADING
 #define INCLUDE_STRTOF
 
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
+
 #define STDIN_FILENO   0
 #define STDOUT_FILENO  1
 #define STDERR_FILENO  2
@@ -60,13 +64,13 @@ struct stat
 void                exit(int code);
 
 #ifdef INCLUDE_FILEIO
-long                openat(int dirfd, const char *pathname, int flags); 
+int                 openat(int dirfd, const char *pathname, int flags);
 int                 fstatat(int dirfd, const char *pathname,
                             struct stat *restrict statbuf, int flags);
 int                 close(int fd);
 #endif
 
-long                write(int fd, const void *buf, unsigned long long cnt);
+long long           write(int fd, const void *buf, unsigned long long cnt);
 
 void                *mmap(void *ptr, unsigned long long len, int prot,
                           int flags, int fd, unsigned long long ofs);

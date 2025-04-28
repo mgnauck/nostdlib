@@ -4,8 +4,6 @@
 
 #include "platform.h"
 
-#define NULL ((void *)0) // TODO Make available in header?
-
 /*
 Calling conventions:
 
@@ -83,7 +81,7 @@ void exit(int code)
 }
 
 #ifdef INCLUDE_FILEIO
-long openat(int dirfd, const char *pathname, int flags) 
+int openat(int dirfd, const char *pathname, int flags)
 {
 	return syscall(SYS_OPENAT, dirfd, (long long)pathname, flags, 0, 0, 0);
 }
@@ -101,7 +99,7 @@ int close(int fd)
 }
 #endif
 
-long write(int fd, const void *buf, unsigned long long cnt)
+long long write(int fd, const void *buf, unsigned long long cnt)
 {
 	return syscall(SYS_WRITE, fd, (long long)buf, cnt, 0, 0, 0);
 }

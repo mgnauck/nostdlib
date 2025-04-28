@@ -28,6 +28,7 @@ long long syscall(long long nr, long long a, long long b, long long c,
 	return res;
 }
 
+#ifdef INCLUDE_THREADING
 long long create_thread(void (*fn)(void *), void *param, void *stack)
 {
 	void **top = (void **)stack;
@@ -52,5 +53,6 @@ long long create_thread(void (*fn)(void *), void *param, void *stack)
 
 	return res;
 }
+#endif
 
 #endif
