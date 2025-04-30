@@ -259,6 +259,7 @@ int atoi(const char *s)
 
 	switch (*s) {
 		case '-': neg = 1;
+		// fall through
 		case '+': s++;
 	}
 
