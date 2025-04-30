@@ -16,23 +16,25 @@ x86_64	rax	rax	rdi	rsi	rdx	r10	r8	r9     syscall
 
 #if defined(__x86_64__)
 
+#define SYS_EXIT      60
+#define SYS_FUTEX    202
 #define SYS_OPENAT   257
 #define SYS_FSTATAT  262
 #define SYS_CLOSE      3
 #define SYS_WRITE      1
 #define SYS_MMAP       9
-#define SYS_UNMAP     11
-#define SYS_EXIT      60
+#define SYS_MUNMAP    11
 
 #elif defined(__aarch64__)
 
+#define SYS_EXIT      93
+#define SYS_FUTEX     98
 #define SYS_OPENAT    56
 #define SYS_FSTATAT   79 
 #define SYS_CLOSE     57 
 #define SYS_WRITE     64
 #define SYS_MMAP     222 
-#define SYS_UNMAP    215
-#define SYS_EXIT      93
+#define SYS_MUNMAP   215
 
 #else
 
@@ -45,23 +47,23 @@ x86_64	rax	rax	rdi	rsi	rdx	r10	r8	r9     syscall
 #if defined(__x86_64__)
 
 // SYSCALL_CLASS_UNIX << SYSCALL_CLASS_SHIFT, which is 2 << 24 = 0x2000000
+#define SYS_EXIT    (0x2000000 +   1)
 #define SYS_OPENAT  (0x2000000 + 463)
 #define SYS_FSTATAT (0x2000000 + 469)
-#define SYS_CLOSE   (0x2000000 + 6)
-#define SYS_WRITE   (0x2000000 + 4)
+#define SYS_CLOSE   (0x2000000 +   6)
+#define SYS_WRITE   (0x2000000 +   4)
 #define SYS_MMAP    (0x2000000 + 197)
-#define SYS_UNMAP   (0x2000000 + 73)
-#define SYS_EXIT    (0x2000000 + 1)
+#define SYS_MUNMAP  (0x2000000 +  73)
 
 #elif defined(__aarch64__)
 
+#define SYS_EXIT     1
 #define SYS_OPENAT   463
 #define SYS_FSTATAT  469
 #define SYS_CLOSE    6
 #define SYS_WRITE    4
 #define SYS_MMAP     197
-#define SYS_UNMAP    73
-#define SYS_EXIT     1
+#define SYS_MUNMAP   73
 
 #else
 
@@ -78,6 +80,14 @@ extern long long syscall(long long call, long long a, long long b, long long c,
 void exit(int code)
 {
 	syscall(SYS_EXIT, code, 0, 0, 0, 0, 0);
+}
+
+int futex(unsigned int *uaddr, int futex_op, unsigned int val,
+          const struct timespec *timeout, unsigned int *uaddr2,
+          unsigned int val3)
+{
+	return syscall(SYS_FUTEX, (long long)uaddr, futex_op, val,
+	  (long long)timeout, (long long)uaddr2, val3);
 }
 
 #ifdef INCLUDE_FILEIO
@@ -113,7 +123,7 @@ void *mmap(void *ptr, unsigned long long len, int prot, int flags, int fd,
 
 int munmap(void *ptr, unsigned long long len)
 {
-	return syscall(SYS_UNMAP, (long long)ptr, len, 0, 0, 0, 0);
+	return syscall(SYS_MUNMAP, (long long)ptr, len, 0, 0, 0, 0);
 }
 
 void *malloc(unsigned long long len)
@@ -493,8 +503,3 @@ float atof(const char *str)
 }
 
 #endif // INCLUDE_STRTOF
-
-int fetch_and_add(int *var, int val)
-{
-	return __atomic_fetch_add(var, val, __ATOMIC_SEQ_CST);
-}

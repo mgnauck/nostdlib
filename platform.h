@@ -13,8 +13,6 @@
 #define STDOUT_FILENO  1
 #define STDERR_FILENO  2
 
-// THESE MIGHT BE DIFFERENT 
-
 // fcntl.h
 #define O_RDONLY	00000000
 #define O_WRONLY	00000001
@@ -26,10 +24,15 @@
 // mman.h
 #define PROT_READ       0x1
 #define PROT_WRITE      0x2
+#define MAP_SHARED      0x001
 #define MAP_PRIVATE     0x002
 #define MAP_ANONYMOUS   0x020
 #define MAP_GROWSDOWN   0x100
 #define MAP_STACK       0x200
+
+// futex.h
+#define FUTEX_WAIT      0
+#define FUTEX_WAKE      1
 
 #define min(a, b)  ((a) < (b) ? (a) : (b))
 #define max(a, b)  ((a) > (b) ? (a) : (b))
@@ -62,6 +65,10 @@ struct stat
 };
 
 void                exit(int code);
+
+int                 futex(unsigned int *uaddr, int futex_op, unsigned int val,
+                          const struct timespec *timeout, unsigned int *uaddr2,
+                          unsigned int val3);
 
 #ifdef INCLUDE_FILEIO
 int                 openat(int dirfd, const char *pathname, int flags);
@@ -106,7 +113,5 @@ int                 atoi(const char *s);
 float               strtof(const char *restrict s, char **restrict endptr);
 float               atof(const char *s);
 #endif
-
-int                 fetch_and_add(int *var, int val);
 
 #endif
