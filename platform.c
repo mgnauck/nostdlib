@@ -140,6 +140,8 @@ void *malloc(unsigned long long len)
 
 void free(void *ptr)
 {
+	if (!ptr)
+		return;
 	unsigned long long len;
 	ptr = (void *)((unsigned long long)ptr -
 	  (unsigned long long)sizeof(len));

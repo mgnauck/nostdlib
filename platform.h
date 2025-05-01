@@ -34,11 +34,6 @@
 #define FUTEX_WAIT      0
 #define FUTEX_WAKE      1
 
-#define min(a, b)  ((a) < (b) ? (a) : (b))
-#define max(a, b)  ((a) > (b) ? (a) : (b))
-
-#define arrsz(a)  (sizeof(a) / sizeof(*(a)))
-
 struct timespec
 {
 	unsigned long long  sec;
