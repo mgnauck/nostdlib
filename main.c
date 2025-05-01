@@ -86,6 +86,7 @@ void _start(void)
 	unsigned long long sz = 0;
 	void *buf = mapfile_read("Makefile", &sz);
 
+	printf("size: %llu\n", sz);
 	write(STDOUT_FILENO, buf, sz);
 
 	if (munmap(buf, sz) < 0)

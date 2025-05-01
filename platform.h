@@ -49,19 +49,19 @@ struct stat
 {
 	unsigned long long  st_dev;
 	unsigned long long  st_ino;
-	unsigned int        st_mode;
 	unsigned long long  st_nlink;
+	unsigned int        st_mode;
 	unsigned int        st_uid;
 	unsigned int        st_gid;
 	unsigned int        __pad0;
 	unsigned long long  st_rdev;
 	unsigned long long  st_size;
-	unsigned long long  st_blksize;
-	unsigned long long  st_blocks;
+	long long           st_blksize;
+	long long           st_blocks;
 	struct timespec     st_atim;
 	struct timespec     st_mtim;
 	struct timespec     st_ctim;
-	long long           __unused[3];
+	long long           __unused[4]; // GCC requires add. 8 bytes padding
 };
 
 void                exit(int code);
