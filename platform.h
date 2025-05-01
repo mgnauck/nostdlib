@@ -49,8 +49,8 @@ struct stat
 {
 	unsigned long long  st_dev;
 	unsigned long long  st_ino;
-	unsigned long long  st_nlink;
 	unsigned int        st_mode;
+	unsigned long long  st_nlink;
 	unsigned int        st_uid;
 	unsigned int        st_gid;
 	unsigned int        __pad0;
