@@ -152,8 +152,6 @@ void free(void *ptr)
 
 void *memset(void *dst, int c, unsigned long long len)
 {
-	if (!len)
-		return dst;
 	unsigned char *d = dst;
 	for (; len; len--, d++)
 		*d = c;
@@ -163,8 +161,6 @@ void *memset(void *dst, int c, unsigned long long len)
 void *memcpy(void *restrict dst, const void *restrict src,
              unsigned long long len)
 {
-	if (!len)
-		return dst;
 	unsigned char *d = dst;
 	const unsigned char *s = src;
 	for (; len; len--, d++, s++)
