@@ -35,7 +35,8 @@ long long syscall(long long nr, long long a, long long b, long long c,
 long long create_thread(void (*fn)(void *), void *param, void *stack)
 {
 	void **top = (void **)stack;
-	top[-1] = (void *)fn; // Push thread entry function first
+	// Avoid 'wrong' gcc warning via void ** cast
+	top[-1] = *(void **)&fn; // Push thread entry function first
 	top[-2] = param; // Push thread entry function parameter location next
 
 	unsigned long long flags = CLONE_FS | CLONE_FILES | CLONE_SIGHAND |
