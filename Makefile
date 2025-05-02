@@ -6,11 +6,10 @@ CFLAGS = -std=c99 -march=native -O3 -Wall -Wextra -Wpedantic -Wshadow
 CFLAGS += -flto
 CFLAGS += -fno-builtin -fno-stack-protector
 #CFLAGS += -fdata-sections -Wa,--noexecstack -static -fdelete-null-pointer-checks
-#CFLAGS += $(shell sdl2-config --cflags)
 CFLAGS += -g
 #CFLAGS += -fsanitize=undefined
 #CFLAGS += -DNDEBUG
-#LDLIBS = -lm $(shell sdl2-config --libs)
+#LDLIBS = -lm
 #LDFLAGS += -fsanitize=undefined
 LDFLAGS = -flto -O3 -s
 #LDFLAGS = -fuse-ld=lld
