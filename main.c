@@ -59,6 +59,7 @@ void fpost(unsigned int *fut)
 
 unsigned int *faddr, taskcnt, fincnt;
 
+__attribute((force_align_arg_pointer))
 void thrdfn(void *p)
 {
 	unsigned int num = *(unsigned int *)p;
@@ -80,6 +81,7 @@ void thrdfn(void *p)
 	exit(0);
 }
 
+__attribute((force_align_arg_pointer))
 void _start(void)
 {
 	// Test: Read Makefile
