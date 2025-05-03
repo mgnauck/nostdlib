@@ -61,7 +61,7 @@ unsigned int *faddr, taskcnt, fincnt;
 
 void thrdfn(void *p)
 {
-	__asm("sub $8, %rsp\n");
+	//__asm("sub $8, %rsp\n");
 
 	unsigned int num = *(unsigned int *)p;
 
@@ -82,7 +82,7 @@ void thrdfn(void *p)
 	exit(0);
 }
 
-__attribute((force_align_arg_pointer))
+//__attribute((force_align_arg_pointer))
 void _start(void)
 {
 	//__asm("sub $8, %rsp\n");
