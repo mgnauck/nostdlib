@@ -62,6 +62,8 @@ unsigned int *faddr, taskcnt, fincnt;
 __attribute((force_align_arg_pointer))
 void thrdfn(void *p)
 {
+	__asm("sub $8, %rsp\n");
+
 	unsigned int num = *(unsigned int *)p;
 
 	while (1) {
@@ -81,9 +83,11 @@ void thrdfn(void *p)
 	exit(0);
 }
 
-__attribute((force_align_arg_pointer))
+//__attribute((force_align_arg_pointer))
 void _start(void)
 {
+	__asm("sub $8, %rsp\n");
+
 	// Test: Read Makefile
 	unsigned long long sz = 0;
 	void *buf = mapfile_read("Makefile", &sz);
